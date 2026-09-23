@@ -1,5 +1,11 @@
 <div align="center">
 
+**🌐 Languages:** [English](README.md) · [Bahasa Indonesia](README-ID.md)
+
+</div>
+
+<div align="center">
+
 # 🍩 BATTLE CHEATS
 
 **Mount & Blade II: Bannerlord — Singleplayer Cheat Suite**

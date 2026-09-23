@@ -52,9 +52,13 @@ public sealed class BattleCheatsSubModule : MBSubModuleBase
     private const string ActPage3 = "page3";
         private const string ActPage4 = "page4";
         private const string ActPanicOff = "panic_off";
+        private const string ActLang = "language";
     private const string ActHotkey = "hotkey";
 
     private static DamageMode _damageMode = DamageMode.Normal;
+
+    // bilingual helper: EN kalau setting aktif, ID default
+    private static string L(string id, string en) => BattleCheatsSettings.English ? en : id;
     private static Dictionary<Agent, int> _hitCounts = new Dictionary<Agent, int>();
 
     private static Action _pendingUiAction;
@@ -161,7 +165,7 @@ public sealed class BattleCheatsSubModule : MBSubModuleBase
     }
 
     private static InquiryElement Row(string id, string label, string hint, bool on)
-        => new InquiryElement(id, label + (on ? "  [ON]" : "  [off]"), null, true, hint);
+        => new InquiryElement(id, label + (on ? L("  [AKTIF]", "  [ON]") : L("  [mati]", "  [off]")), null, true, hint);
 
     private static InquiryElement Cmd(string id, string label, string hint)
         => new InquiryElement(id, label, null, true, hint);
@@ -197,30 +201,31 @@ public sealed class BattleCheatsSubModule : MBSubModuleBase
     {
         BattleCheatsSettings.ResetAll();
         _damageMode = DamageMode.Normal;
-        ShowMsg("Semua cheat dimatiin.");
+        ShowMsg(L("Semua cheat dimatiin.", "All cheats disabled."));
     }
 
     private static void ShowPage1()
     {
         List<InquiryElement> list = new List<InquiryElement>();
-        list.Add(Cmd(ActPanicOff, ">> MATIKAN SEMUA CHEAT <<", "Reset total, semua fitur off."));
-        list.Add(Row(ActGod, "Kebal (God Mode)", "Player kebal semua damage.", BattleCheatsSettings.GodMode));
-        list.Add(Cmd(ActOneHit, "One Hit Kill" + (_damageMode == DamageMode.OneHit ? "  [AKTIF]" : ""), "1 hit = musuh mati."));
-        list.Add(Cmd(ActTwoHit, "Two Hit Kill" + (_damageMode == DamageMode.TwoHit ? "  [AKTIF]" : ""), "2 hit = musuh mati."));
-        list.Add(Cmd(ActDmgX3, "Damage 3x" + Active(BattleCheatsSettings.PlayerDamageMultiplier == 3), "Damage dikali 3."));
-        list.Add(Cmd(ActDmgX10, "Damage 10x" + Active(BattleCheatsSettings.PlayerDamageMultiplier == 10), "Damage dikali 10."));
-        list.Add(Cmd(ActDmgX100, "Damage 100x" + Active(BattleCheatsSettings.PlayerDamageMultiplier == 100), "Damage dikali 100."));
-        list.Add(Cmd(ActNormal, "Damage Normal" + Active(BattleCheatsSettings.PlayerDamageMultiplier == 1 && _damageMode == DamageMode.Normal), "Reset damage."));
-        list.Add(Row(ActInfiniteAmmo, "Panah gak pernah abis", "Quiver auto-refill tiap detik.", BattleCheatsSettings.InfiniteAmmo));
-        list.Add(Row(ActKillAura, "Kill Aura (radius 10m)", "Musuh deket mati otomatis tiap detik.", BattleCheatsSettings.KillAura));
-        list.Add(Cmd(ActKillAll, ">> BUNUH SEMUA MUSUH <<", "Sweep battlefield sekarang."));
-        list.Add(Cmd(ActPage2, "--- Party & Economy  --->", "Halaman 2."));
-        list.Add(Cmd(ActPage3, "--- Troop & Prajurit --->", "Halaman 3."));
-        list.Add(Cmd(ActHotkey, "Ganti Hotkey (B)", "Ubah tombol menu."));
+        list.Add(Cmd(ActPanicOff, L(">> MATIKAN SEMUA CHEAT <<", ">> DISABLE ALL CHEATS <<"), L("Reset total, semua fitur off.", "Full reset, every feature off.")));
+        list.Add(Cmd(ActLang, BattleCheatsSettings.English ? "Bahasa: INDONESIA  (klik = English)" : "Language: ENGLISH  (klik = Indonesia)", L("Ganti bahasa menu.", "Switch menu language.")));
+        list.Add(Row(ActGod, L("Kebal (God Mode)", "God Mode"), L("Player kebal semua damage.", "Player takes no damage."), BattleCheatsSettings.GodMode));
+        list.Add(Cmd(ActOneHit, L("One Hit Kill", "One Hit Kill") + (_damageMode == DamageMode.OneHit ? Active(true) : ""), L("1 hit = musuh mati.", "1 hit kills enemies.")));
+        list.Add(Cmd(ActTwoHit, L("Two Hit Kill", "Two Hit Kill") + (_damageMode == DamageMode.TwoHit ? Active(true) : ""), L("2 hit = musuh mati.", "2 hits kill enemies.")));
+        list.Add(Cmd(ActDmgX3, L("Damage 3x", "Damage 3x") + Active(BattleCheatsSettings.PlayerDamageMultiplier == 3), L("Damage dikali 3.", "Triple damage.")));
+        list.Add(Cmd(ActDmgX10, L("Damage 10x", "Damage 10x") + Active(BattleCheatsSettings.PlayerDamageMultiplier == 10), L("Damage dikali 10.", "10x damage.")));
+        list.Add(Cmd(ActDmgX100, L("Damage 100x", "Damage 100x") + Active(BattleCheatsSettings.PlayerDamageMultiplier == 100), L("Damage dikali 100.", "100x damage.")));
+        list.Add(Cmd(ActNormal, L("Damage Normal", "Normal Damage") + Active(BattleCheatsSettings.PlayerDamageMultiplier == 1 && _damageMode == DamageMode.Normal), L("Reset damage.", "Reset damage.")));
+        list.Add(Row(ActInfiniteAmmo, L("Panah gak pernah abis", "Infinite Arrows"), L("Quiver auto-refill tiap detik.", "Quiver refills every second."), BattleCheatsSettings.InfiniteAmmo));
+        list.Add(Row(ActKillAura, L("Kill Aura (radius 10m)", "Kill Aura (10m radius)"), L("Musuh deket mati otomatis tiap detik.", "Nearby enemies die every second."), BattleCheatsSettings.KillAura));
+        list.Add(Cmd(ActKillAll, L(">> BUNUH SEMUA MUSUH <<", ">> KILL ALL ENEMIES <<"), L("Sweep battlefield sekarang.", "Instant battlefield sweep.")));
+        list.Add(Cmd(ActPage2, L("--- Party & Ekonomi  --->", "--- Party & Economy --->"), L("Halaman 2.", "Page 2.")));
+        list.Add(Cmd(ActPage3, L("--- Otomatis & Kerajaan  --->", "--- Automation & Kingdom --->"), L("Halaman 3.", "Page 3.")));
+        list.Add(Cmd(ActHotkey, L("Ganti Hotkey (B)", "Rebind Hotkey (B)"), L("Ubah tombol menu.", "Change the menu key.")));
         MBInformationManager.ShowMultiSelectionInquiry(new MultiSelectionInquiryData(
-            "BATTLE CHEATS by @donutcoffe  |  1/4 - TEMPUR  (aktif: " + CountActive() + ")",
-            "Pilih untuk toggle:",
-            list, true, 1, 1, "Pilih", "Tutup",
+            L("BATTLE CHEATS by @donutcoffe  |  1/4 - TEMPUR", "BATTLE CHEATS by @donutcoffe  |  1/4 - COMBAT") + L("  (aktif: ", "  (active: ") + CountActive() + ")",
+            L("Pilih untuk toggle:", "Select to toggle:") + "",
+            list, true, 1, 1, L("Pilih", "Select"), L("Tutup", "Close"),
             OnSelect, null, string.Empty, false), true, true);
     }
 
@@ -228,20 +233,20 @@ public sealed class BattleCheatsSubModule : MBSubModuleBase
     {
         List<InquiryElement> list = new List<InquiryElement>
         {
-            Row(ActUnlTroops, "Unlimited Troops", "Party size +5000.", BattleCheatsSettings.UnlimitedTroops),
-            Row(ActUnlPrisoners, "Unlimited Prisoners", "Tahanan tanpa limit.", BattleCheatsSettings.UnlimitedPrisoners),
-            Row(ActUnlInventory, "Unlimited Inventory", "Capasitas 999999.", BattleCheatsSettings.UnlimitedInventory),
-            Row(ActNoCargo, "Anti Berat (speed penuh)", "Bawa apapun speed tetap max.", BattleCheatsSettings.NoCargoSlowdown),
-            Row(ActFreeRecruit, "Rekrut Gratis", "Rekrut di village = 0 denar.", BattleCheatsSettings.FreeRecruit),
-            Row(ActIgnoreByParties, "Party Tak Terlihat", "Musuh gak ngejar party lo.", BattleCheatsSettings.IgnoreByParties),
-            Cmd(ActPage1, "<---  Tempur  ---", "Halaman 1."),
-            Cmd(ActPage3, "--- Troop & Prajurit --->", "Halaman 3."),
-            Cmd(ActHotkey, "Ganti Hotkey (B)", "Ubah tombol menu.")
+            Row(ActUnlTroops, L("Unlimited Troops", "Unlimited Troops"), L("Party size +5000.", "Party size +5000."), BattleCheatsSettings.UnlimitedTroops),
+            Row(ActUnlPrisoners, L("Unlimited Prisoners", "Unlimited Prisoners"), L("Tahanan tanpa limit.", "No prisoner limit."), BattleCheatsSettings.UnlimitedPrisoners),
+            Row(ActUnlInventory, L("Unlimited Inventory", "Unlimited Inventory"), L("Capasitas 999999.", "Capacity 999999."), BattleCheatsSettings.UnlimitedInventory),
+            Row(ActNoCargo, L("Anti Berat (speed penuh)", "No Weight Penalty"), L("Bawa apapun speed tetap max.", "Full speed regardless of cargo."), BattleCheatsSettings.NoCargoSlowdown),
+            Row(ActFreeRecruit, L("Rekrut Gratis", "Free Recruit"), L("Rekrut di village = 0 denar.", "Recruitment costs 0 denar."), BattleCheatsSettings.FreeRecruit),
+            Row(ActIgnoreByParties, L("Party Tak Terlihat", "Ghost Party"), L("Musuh gak ngejar party lo.", "Enemy parties ignore you."), BattleCheatsSettings.IgnoreByParties),
+            Cmd(ActPage1, L("<---  Tempur  ---", "<--- Combat ---"), L("Halaman 1.", "Page 1.")),
+            Cmd(ActPage3, L("--- Otomatis & Kerajaan  --->", "--- Automation & Kingdom --->"), L("Halaman 3.", "Page 3.")),
+            Cmd(ActHotkey, L("Ganti Hotkey (B)", "Rebind Hotkey (B)"), L("Ubah tombol menu.", "Change the menu key."))
         };
         MBInformationManager.ShowMultiSelectionInquiry(new MultiSelectionInquiryData(
-            "BATTLE CHEATS  |  2/4 - PARTY & EKONOMI  (aktif: " + CountActive() + ")",
-            "Pilih untuk toggle:",
-            list, true, 1, 1, "Pilih", "Tutup",
+            L("BATTLE CHEATS  |  2/4 - PARTY & EKONOMI", "BATTLE CHEATS  |  2/4 - PARTY & ECONOMY") + L("  (aktif: ", "  (active: ") + CountActive() + ")",
+            L("Pilih untuk toggle:", "Select to toggle:") + "",
+            list, true, 1, 1, L("Pilih", "Select"), L("Tutup", "Close"),
             OnSelect, null, string.Empty, false), true, true);
     }
 
@@ -249,20 +254,20 @@ public sealed class BattleCheatsSubModule : MBSubModuleBase
     {
         List<InquiryElement> list = new List<InquiryElement>
         {
-            Row(ActAutoGovernor, "Auto-Gubernur Pintar", "Companion terpintar jadi gubernur tiap town/castle (militer/ekonomi sesuai jenis).", BattleCheatsSettings.AutoGovernor),
-            Row(ActAutoFood, "Auto-Bekal (pasukan kenyang)", "Makanan party auto-refill, gak pernah kelaparan.", BattleCheatsSettings.AutoFood),
-            Row(ActNoDesertion, "Anti-Pembelot", "Moral selalu max, pasukan gak pernah kabur.", BattleCheatsSettings.NoDesertion),
-            Row(ActAutoPrisoners, "Tahanan Nyata di Settlement", "Tiap town/castle lo penjaranya auto-isi tahanan perang nyata.", BattleCheatsSettings.AutoPrisoners),
-            Row(ActAutoSupporters, "Auto Rekanan (Guild & Notable)", "Notable di settlement lo otomatis jadi pendukung clan.", BattleCheatsSettings.AutoSupporters),
-            Cmd(ActPage1, "<---  Tempur  ---", "Halaman 1."),
+            Row(ActAutoGovernor, L("Auto-Gubernur Pintar", "Smart Auto-Governor"), L("Companion terpintar jadi gubernur tiap town/castle (militer/ekonomi sesuai jenis).", "Best idle companion assigned per town/castle, military/economy profile matched."), BattleCheatsSettings.AutoGovernor),
+            Row(ActAutoFood, L("Auto-Bekal (pasukan kenyang)", "Auto Rations"), L("Makanan party auto-refill, gak pernah kelaparan.", "Party food auto-refills, starvation impossible."), BattleCheatsSettings.AutoFood),
+            Row(ActNoDesertion, L("Anti-Pembelot", "Anti-Desertion"), L("Moral selalu max, pasukan gak pernah kabur.", "Morale locked to max, zero desertion."), BattleCheatsSettings.NoDesertion),
+            Row(ActAutoPrisoners, L("Tahanan Nyata di Settlement", "Real Prisoners"), L("Tiap town/castle lo penjaranya auto-isi tahanan perang nyata.", "Every owned town/castle auto-stocked with real war prisoners."), BattleCheatsSettings.AutoPrisoners),
+            Row(ActAutoSupporters, L("Auto Rekanan (Guild & Notable)", "Auto Supporters"), L("Notable di settlement lo otomatis jadi pendukung clan.", "Notables in your settlements flip to your clan."), BattleCheatsSettings.AutoSupporters),
+            Cmd(ActPage1, L("<---  Tempur  ---", "<--- Combat ---"), L("Halaman 1.", "Page 1.")),
             Cmd(ActPage2, "<---  Party & Ekonomi  ---", "Halaman 2."),
-            Cmd(ActPage4, "---  Troop & Tahanan  --->", "Halaman 4."),
-            Cmd(ActHotkey, "Ganti Hotkey", "Ubah tombol menu.")
+            Cmd(ActPage4, L("---  Troop & Tahanan  --->", "--- Troops & Prisoners --->"), L("Halaman 4.", "Page 4.")),
+            Cmd(ActHotkey, L("Ganti Hotkey", "Rebind Hotkey"), L("Ubah tombol menu.", "Change the menu key."))
         };
         MBInformationManager.ShowMultiSelectionInquiry(new MultiSelectionInquiryData(
-            "BATTLE CHEATS  |  3/4 - OTOMATIS & KERAJAAN  (aktif: " + CountActive() + ")",
-            "Pilih untuk toggle:",
-            list, true, 1, 1, "Pilih", "Tutup",
+            L("BATTLE CHEATS  |  3/4 - OTOMATIS & KERAJAAN", "BATTLE CHEATS  |  3/4 - AUTOMATION & KINGDOM") + L("  (aktif: ", "  (active: ") + CountActive() + ")",
+            L("Pilih untuk toggle:", "Select to toggle:") + "",
+            list, true, 1, 1, L("Pilih", "Select"), L("Tutup", "Close"),
             OnSelect, null, string.Empty, false), true, true);
     }
 
@@ -270,28 +275,28 @@ public sealed class BattleCheatsSubModule : MBSubModuleBase
     {
         List<InquiryElement> list = new List<InquiryElement>
         {
-            Cmd(ActRecruitPrisoners, ">> REKRUT SEMUA TAHANAN <<", "Semua tahanan jadi prajurit sekarang."),
-            Row(ActAutoRecruit, "Auto-Rekrut Tahanan", "Tahanan masuk = langsung prajurit.", BattleCheatsSettings.AutoRecruitPrisoners),
-            Row(ActAutoHeal, "Auto-Heal Pasukan", "Troop luka sembuh instan tiap hari.", BattleCheatsSettings.AutoHealTroops),
-            Row(ActInstantUpgrade, "Upgrade Instan (buka semua)", "Syarat upgrade diabaikan: item, perk, XP.", BattleCheatsSettings.InstantUpgrade),
-            Cmd(ActUpgradeNow, ">> UPGRADE SEMUA TROOP MAX <<", "Naikkan semua troop ke tier tertinggi sekarang."),
-            Row(ActTroopsGod, "Troop Kebal", "Pasukan lo gak bisa mati.", BattleCheatsSettings.TroopsInvulnerable),
-            Row(ActTroopsOneHit, "Troop One-Hit", "Pasukan lo instan-kill musuh.", BattleCheatsSettings.TroopsOneHit),
-            Row(ActAutoLoot, "Auto-Loot Musuh", "Perlengkapan musuh masuk inventory.", BattleCheatsSettings.AutoLoot),
-            Cmd(ActSpawnRodi, ">> SPAWN 50 PEKERJA RODI <<", "Tambah 50 warga sipil ke party. Bukan militer, gak bisa upgrade."),
-            Cmd(ActPage1, "<---  Tempur  ---", "Halaman 1."),
+            Cmd(ActRecruitPrisoners, L(">> REKRUT SEMUA TAHANAN <<", ">> RECRUIT ALL PRISONERS <<"), L("Semua tahanan jadi prajurit sekarang.", "All prisoners become troops now, healthy.")),
+            Row(ActAutoRecruit, L("Auto-Rekrut Tahanan", "Auto-Recruit Prisoners"), L("Tahanan masuk = langsung prajurit.", "Prisoners become troops instantly on capture."), BattleCheatsSettings.AutoRecruitPrisoners),
+            Row(ActAutoHeal, L("Auto-Heal Pasukan", "Auto-Heal Troops"), L("Troop luka sembuh instan tiap hari.", "Wounded troops recover instantly."), BattleCheatsSettings.AutoHealTroops),
+            Row(ActInstantUpgrade, L("Upgrade Instan (buka semua)", "Instant Upgrade"), L("Syarat upgrade diabaikan: item, perk, XP.", "Upgrade requirements ignored: items, perks, XP."), BattleCheatsSettings.InstantUpgrade),
+            Cmd(ActUpgradeNow, L(">> UPGRADE SEMUA TROOP MAX <<", ">> UPGRADE ALL TROOPS TO MAX <<"), L("Naikkan semua troop ke tier tertinggi sekarang.", "Chain-upgrade every troop to max tier now.")),
+            Row(ActTroopsGod, L("Troop Kebal", "Troop God Mode"), L("Pasukan lo gak bisa mati.", "Your troops cannot die."), BattleCheatsSettings.TroopsInvulnerable),
+            Row(ActTroopsOneHit, L("Troop One-Hit", "Troop One-Hit"), L("Pasukan lo instan-kill musuh.", "Your troops one-shot enemies."), BattleCheatsSettings.TroopsOneHit),
+            Row(ActAutoLoot, L("Auto-Loot Musuh", "Auto-Loot Enemies"), L("Perlengkapan musuh masuk inventory.", "Enemy equipment flows to your inventory."), BattleCheatsSettings.AutoLoot),
+            Cmd(ActSpawnRodi, L(">> SPAWN 50 PEKERJA RODI <<", ">> SPAWN 50 CIVILIANS <<"), L("Tambah 50 warga sipil ke party. Bukan militer, gak bisa upgrade.", "Add 50 villagers to party. Non-military, cannot upgrade.")),
+            Cmd(ActPage1, L("<---  Tempur  ---", "<--- Combat ---"), L("Halaman 1.", "Page 1.")),
             Cmd(ActPage2, "<---  Party & Ekonomi  ---", "Halaman 2."),
-            Cmd(ActPage3, "<---  Otomatis & Kerajaan  ---", "Halaman 3."),
-            Cmd(ActHotkey, "Ganti Hotkey", "Ubah tombol menu.")
+            Cmd(ActPage3, L("<---  Otomatis & Kerajaan  ---", "<--- Automation & Kingdom ---"), L("Halaman 3.", "Page 3.")),
+            Cmd(ActHotkey, L("Ganti Hotkey", "Rebind Hotkey"), L("Ubah tombol menu.", "Change the menu key."))
         };
         MBInformationManager.ShowMultiSelectionInquiry(new MultiSelectionInquiryData(
-            "BATTLE CHEATS  |  4/4 - TROOP & TAHANAN  (aktif: " + CountActive() + ")",
-            "Pilih untuk toggle:",
-            list, true, 1, 1, "Pilih", "Tutup",
+            L("BATTLE CHEATS  |  4/4 - TROOP & TAHANAN", "BATTLE CHEATS  |  4/4 - TROOPS & PRISONERS") + L("  (aktif: ", "  (active: ") + CountActive() + ")",
+            L("Pilih untuk toggle:", "Select to toggle:") + "",
+            list, true, 1, 1, L("Pilih", "Select"), L("Tutup", "Close"),
             OnSelect, null, string.Empty, false), true, true);
     }
 
-        private static string Active(bool on) => on ? "  [AKTIF]" : "";
+        private static string Active(bool on) => on ? L("  [AKTIF]", "  [ON]") : "";
 
     private static void OnSelect(List<InquiryElement> selected)
     {
@@ -302,33 +307,33 @@ public sealed class BattleCheatsSubModule : MBSubModuleBase
         {
             case ActGod:
                 BattleCheatsSettings.GodMode = !BattleCheatsSettings.GodMode;
-                ShowMsg("Kebal: " + OnOff(BattleCheatsSettings.GodMode));
+                ShowMsg(L("Kebal: ", "God mode: ") + OnOff(BattleCheatsSettings.GodMode));
                 next = ShowPage1; break;
             case ActOneHit:
                 _damageMode = DamageMode.OneHit; BattleCheatsSettings.PlayerDamageMultiplier = 1; _hitCounts.Clear();
-                ShowMsg("One Hit Kill: ON"); next = ShowPage1; break;
+                ShowMsg(L("One Hit Kill: ON", "One Hit Kill: ON")); next = ShowPage1; break;
             case ActTwoHit:
                 _damageMode = DamageMode.TwoHit; BattleCheatsSettings.PlayerDamageMultiplier = 1; _hitCounts.Clear();
-                ShowMsg("Two Hit Kill: ON"); next = ShowPage1; break;
+                ShowMsg(L("Two Hit Kill: ON", "Two Hit Kill: ON")); next = ShowPage1; break;
             case ActDmgX3:
                 _damageMode = DamageMode.Normal; BattleCheatsSettings.PlayerDamageMultiplier = 3;
-                ShowMsg("Damage: 3x"); next = ShowPage1; break;
+                ShowMsg(L("Damage: 3x", "Damage: 3x")); next = ShowPage1; break;
             case ActDmgX10:
                 _damageMode = DamageMode.Normal; BattleCheatsSettings.PlayerDamageMultiplier = 10;
-                ShowMsg("Damage: 10x"); next = ShowPage1; break;
+                ShowMsg(L("Damage: 10x", "Damage: 10x")); next = ShowPage1; break;
             case ActDmgX100:
                 _damageMode = DamageMode.Normal; BattleCheatsSettings.PlayerDamageMultiplier = 100;
-                ShowMsg("Damage: 100x"); next = ShowPage1; break;
+                ShowMsg(L("Damage: 100x", "Damage: 100x")); next = ShowPage1; break;
             case ActNormal:
                 _damageMode = DamageMode.Normal; BattleCheatsSettings.PlayerDamageMultiplier = 1; _hitCounts.Clear();
-                ShowMsg("Damage normal"); next = ShowPage1; break;
+                ShowMsg(L("Damage normal", "Normal damage")); next = ShowPage1; break;
             case ActInfiniteAmmo:
                 BattleCheatsSettings.InfiniteAmmo = !BattleCheatsSettings.InfiniteAmmo;
-                ShowMsg("Panah tak terbatas: " + OnOff(BattleCheatsSettings.InfiniteAmmo));
+                ShowMsg(L("Panah tak terbatas: ", "Infinite arrows: ") + OnOff(BattleCheatsSettings.InfiniteAmmo));
                 next = ShowPage1; break;
             case ActKillAura:
                 BattleCheatsSettings.KillAura = !BattleCheatsSettings.KillAura;
-                ShowMsg("Kill aura: " + OnOff(BattleCheatsSettings.KillAura));
+                ShowMsg(L("Kill aura: ", "Kill aura: ") + OnOff(BattleCheatsSettings.KillAura));
                 next = ShowPage1; break;
             case ActKillAll:
                 KillAllEnemies(); next = ShowPage1; break;
@@ -337,25 +342,29 @@ public sealed class BattleCheatsSubModule : MBSubModuleBase
             case ActPage3: next = ShowPage3; break;
             case ActPage4: next = ShowPage4; break;
             case ActPanicOff: PanicOff(); next = ShowPage1; break;
+            case ActLang:
+                BattleCheatsSettings.English = !BattleCheatsSettings.English;
+                ShowMsg(BattleCheatsSettings.English ? "Language: English" : "Bahasa: Indonesia");
+                next = ShowPage1; break;
             case ActUnlTroops:
                 BattleCheatsSettings.UnlimitedTroops = !BattleCheatsSettings.UnlimitedTroops;
-                ShowMsg("Unlimited troops: " + OnOff(BattleCheatsSettings.UnlimitedTroops));
+                ShowMsg(L("Unlimited troops: ", "Unlimited troops: ") + OnOff(BattleCheatsSettings.UnlimitedTroops));
                 next = ShowPage2; break;
             case ActUnlPrisoners:
                 BattleCheatsSettings.UnlimitedPrisoners = !BattleCheatsSettings.UnlimitedPrisoners;
-                ShowMsg("Unlimited prisoners: " + OnOff(BattleCheatsSettings.UnlimitedPrisoners));
+                ShowMsg(L("Unlimited prisoners: ", "Unlimited prisoners: ") + OnOff(BattleCheatsSettings.UnlimitedPrisoners));
                 next = ShowPage2; break;
             case ActUnlInventory:
                 BattleCheatsSettings.UnlimitedInventory = !BattleCheatsSettings.UnlimitedInventory;
-                ShowMsg("Unlimited inventory: " + OnOff(BattleCheatsSettings.UnlimitedInventory));
+                ShowMsg(L("Unlimited inventory: ", "Unlimited inventory: ") + OnOff(BattleCheatsSettings.UnlimitedInventory));
                 next = ShowPage2; break;
             case ActNoCargo:
                 BattleCheatsSettings.NoCargoSlowdown = !BattleCheatsSettings.NoCargoSlowdown;
-                ShowMsg("Anti berat: " + OnOff(BattleCheatsSettings.NoCargoSlowdown));
+                ShowMsg(L("Anti berat: ", "No weight penalty: ") + OnOff(BattleCheatsSettings.NoCargoSlowdown));
                 next = ShowPage2; break;
             case ActFreeRecruit:
                 BattleCheatsSettings.FreeRecruit = !BattleCheatsSettings.FreeRecruit;
-                ShowMsg("Rekrut gratis: " + OnOff(BattleCheatsSettings.FreeRecruit));
+                ShowMsg(L("Rekrut gratis: ", "Free recruit: ") + OnOff(BattleCheatsSettings.FreeRecruit));
                 next = ShowPage2; break;
             case ActIgnoreByParties:
                 BattleCheatsSettings.IgnoreByParties = !BattleCheatsSettings.IgnoreByParties;
@@ -365,15 +374,15 @@ public sealed class BattleCheatsSubModule : MBSubModuleBase
                 RecruitAllPrisoners(); next = ShowPage3; break;
             case ActAutoRecruit:
                 BattleCheatsSettings.AutoRecruitPrisoners = !BattleCheatsSettings.AutoRecruitPrisoners;
-                ShowMsg("Auto-rekrut: " + OnOff(BattleCheatsSettings.AutoRecruitPrisoners));
+                ShowMsg(L("Auto-rekrut: ", "Auto-recruit: ") + OnOff(BattleCheatsSettings.AutoRecruitPrisoners));
                 next = ShowPage3; break;
             case ActAutoHeal:
                 BattleCheatsSettings.AutoHealTroops = !BattleCheatsSettings.AutoHealTroops;
-                ShowMsg("Auto-heal: " + OnOff(BattleCheatsSettings.AutoHealTroops));
+                ShowMsg(L("Auto-heal: ", "Auto-heal: ") + OnOff(BattleCheatsSettings.AutoHealTroops));
                 next = ShowPage3; break;
             case ActInstantUpgrade:
                 BattleCheatsSettings.InstantUpgrade = !BattleCheatsSettings.InstantUpgrade;
-                ShowMsg("Upgrade instan: " + OnOff(BattleCheatsSettings.InstantUpgrade));
+                ShowMsg(L("Upgrade instan: ", "Instant upgrade: ") + OnOff(BattleCheatsSettings.InstantUpgrade));
                 next = ShowPage3; break;
             case ActUpgradeNow:
                 UpgradeAllTroopsMax(); next = ShowPage3; break;
@@ -381,44 +390,44 @@ public sealed class BattleCheatsSubModule : MBSubModuleBase
                 SpawnLaborers(50); next = ShowPage4; break;
             case ActAutoGovernor:
                 BattleCheatsSettings.AutoGovernor = !BattleCheatsSettings.AutoGovernor;
-                ShowMsg("Auto-gubernur: " + OnOff(BattleCheatsSettings.AutoGovernor));
+                ShowMsg(L("Auto-gubernur: ", "Auto-governor: ") + OnOff(BattleCheatsSettings.AutoGovernor));
                 next = ShowPage3; break;
             case ActAutoFood:
                 BattleCheatsSettings.AutoFood = !BattleCheatsSettings.AutoFood;
-                ShowMsg("Auto-bekal: " + OnOff(BattleCheatsSettings.AutoFood));
+                ShowMsg(L("Auto-bekal: ", "Auto rations: ") + OnOff(BattleCheatsSettings.AutoFood));
                 next = ShowPage3; break;
             case ActNoDesertion:
                 BattleCheatsSettings.NoDesertion = !BattleCheatsSettings.NoDesertion;
-                ShowMsg("Anti-pembelot: " + OnOff(BattleCheatsSettings.NoDesertion));
+                ShowMsg(L("Anti-pembelot: ", "Anti-desertion: ") + OnOff(BattleCheatsSettings.NoDesertion));
                 next = ShowPage3; break;
             case ActAutoPrisoners:
                 BattleCheatsSettings.AutoPrisoners = !BattleCheatsSettings.AutoPrisoners;
-                ShowMsg("Tahanan nyata: " + OnOff(BattleCheatsSettings.AutoPrisoners));
+                ShowMsg(L("Tahanan nyata: ", "Real prisoners: ") + OnOff(BattleCheatsSettings.AutoPrisoners));
                 next = ShowPage3; break;
             case ActAutoSupporters:
                 BattleCheatsSettings.AutoSupporters = !BattleCheatsSettings.AutoSupporters;
-                ShowMsg("Auto rekanan: " + OnOff(BattleCheatsSettings.AutoSupporters));
+                ShowMsg(L("Auto rekanan: ", "Auto supporters: ") + OnOff(BattleCheatsSettings.AutoSupporters));
                 next = ShowPage2; break;
             case ActTroopsGod:
                 BattleCheatsSettings.TroopsInvulnerable = !BattleCheatsSettings.TroopsInvulnerable;
-                ShowMsg("Troop kebal: " + OnOff(BattleCheatsSettings.TroopsInvulnerable));
+                ShowMsg(L("Troop kebal: ", "Troop god mode: ") + OnOff(BattleCheatsSettings.TroopsInvulnerable));
                 next = ShowPage3; break;
             case ActTroopsOneHit:
                 BattleCheatsSettings.TroopsOneHit = !BattleCheatsSettings.TroopsOneHit;
-                ShowMsg("Troop one-hit: " + OnOff(BattleCheatsSettings.TroopsOneHit));
+                ShowMsg(L("Troop one-hit: ", "Troop one-hit: ") + OnOff(BattleCheatsSettings.TroopsOneHit));
                 next = ShowPage3; break;
             case ActAutoLoot:
                 BattleCheatsSettings.AutoLoot = !BattleCheatsSettings.AutoLoot;
-                ShowMsg("Auto-loot: " + OnOff(BattleCheatsSettings.AutoLoot));
+                ShowMsg(L("Auto-loot: ", "Auto-loot: ") + OnOff(BattleCheatsSettings.AutoLoot));
                 next = ShowPage3; break;
             case ActHotkey:
-                next = delegate { _isCapturingHotkey = true; _hotkeyCaptureDelay = 0.4f; ShowMsg("Tekan tombol baru..."); };
+                next = delegate { _isCapturingHotkey = true; _hotkeyCaptureDelay = 0.4f; ShowMsg(L("Tekan tombol baru...", "Press a new key...")); };
                 break;
         }
         if (next != null) _pendingUiAction = next;
     }
 
-    private static string OnOff(bool on) => on ? "ON" : "OFF";
+    private static string OnOff(bool on) => on ? L("ON", "ON") : L("mati", "off");
 
     private static void ApplyIgnoreByParties()
     {
@@ -445,7 +454,7 @@ public sealed class BattleCheatsSubModule : MBSubModuleBase
                 if (IsBindableKey(key) && Input.IsKeyPressed(key))
                 {
                     _menuHotkey = key; _isCapturingHotkey = false;
-                    ShowMsg("Hotkey: " + key);
+                    ShowMsg(L("Hotkey: ", "Hotkey: ") + key);
                     return;
                 }
             }
@@ -616,10 +625,10 @@ public sealed class BattleCheatsSubModule : MBSubModuleBase
                     break;
                 }
             }
-            if (template == null) { ShowMsg("Template warga sipil gak ketemu."); return; }
+            if (template == null) { ShowMsg(L("Template warga sipil gak ketemu.", "Civilian template not found.")); return; }
             main.Party.MemberRoster.AddToCounts(template, count, false, 0, 0);
             WriteRuntimeLog("SpawnRodi: +" + count + " " + template.StringId);
-            ShowMsg("+" + count + " pekerja rodi (" + template.Name.ToString() + ") gabung party.");
+            ShowMsg(L("+" + count + " pekerja rodi (", "+" + count + " laborers (") + template.Name.ToString() + L(") gabung party.", ") joined the party."));
         }
         catch (Exception ex)
         {
@@ -634,7 +643,7 @@ public sealed class BattleCheatsSubModule : MBSubModuleBase
             MobileParty main = MobileParty.MainParty;
             if (main == null || main.PrisonRoster == null || main.PrisonRoster.Count == 0)
             {
-                ShowMsg("Gak ada tahanan buat direkrut.");
+                ShowMsg(L("Gak ada tahanan buat direkrut.", "No prisoners to recruit."));
                 return;
             }
             TroopRoster prisoners = main.PrisonRoster;
@@ -661,7 +670,7 @@ public sealed class BattleCheatsSubModule : MBSubModuleBase
     {
         try
         {
-            if (Mission.Current != null) { ShowMsg("Keluar battle dulu."); return; }
+            if (Mission.Current != null) { ShowMsg(L("Keluar battle dulu.", "Leave the battle first.")); return; }
             MobileParty main = MobileParty.MainParty;
             if (main == null || main.MemberRoster == null) return;
             TroopRoster members = main.MemberRoster;
@@ -699,7 +708,7 @@ public sealed class BattleCheatsSubModule : MBSubModuleBase
         Mission mission = Mission.Current;
         if (mission == null || mission.MainAgent == null)
         {
-            ShowMsg("Gak ada battle aktif.");
+            ShowMsg(L("Gak ada battle aktif.", "No active battle."));
             return;
         }
         int count = 0;

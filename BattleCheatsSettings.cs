@@ -22,6 +22,7 @@ public static class BattleCheatsSettings
     public static bool NoDesertion;
     public static bool AutoPrisoners;
     public static bool AutoSupporters;
+    public static bool English;
     public static bool IgnoreByParties;
 
     public static void ResetAll()
