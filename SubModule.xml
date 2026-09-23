@@ -6,6 +6,7 @@
   <SingleplayerModule value="true"/>
   <ModuleCategory value="Singleplayer"/>
   <ModuleType value="Community"/>
+  <Author value="@donutcoffe"/>
   <DependedModules>
     <DependedModule Id="Native" Optional="false"/>
     <DependedModule Id="SandBoxCore" Optional="false"/>

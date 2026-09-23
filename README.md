@@ -1,5 +1,7 @@
 # Battle Cheats - Mount & Blade II Bannerlord
 
+> Author: **@donutcoffe**
+
 Mod cheat custom untuk Bannerlord (build 1.2.x / War Sails). Menu in-game 4 halaman, hotkey **B** (bisa diganti dari menu).
 
 ## Fitur

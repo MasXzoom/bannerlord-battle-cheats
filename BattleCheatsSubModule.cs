@@ -218,7 +218,7 @@ public sealed class BattleCheatsSubModule : MBSubModuleBase
         list.Add(Cmd(ActPage3, "--- Troop & Prajurit --->", "Halaman 3."));
         list.Add(Cmd(ActHotkey, "Ganti Hotkey (B)", "Ubah tombol menu."));
         MBInformationManager.ShowMultiSelectionInquiry(new MultiSelectionInquiryData(
-            "BATTLE CHEATS  |  1/4 - TEMPUR  (aktif: " + CountActive() + ")",
+            "BATTLE CHEATS by @donutcoffe  |  1/4 - TEMPUR  (aktif: " + CountActive() + ")",
             "Pilih untuk toggle:",
             list, true, 1, 1, "Pilih", "Tutup",
             OnSelect, null, string.Empty, false), true, true);
