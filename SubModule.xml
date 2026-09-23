@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Module>
+  <Name value="Battle Cheats"/>
+  <Id value="BattleCheats"/>
+  <Version value="v1.0.0"/>
+  <SingleplayerModule value="true"/>
+  <ModuleCategory value="Singleplayer"/>
+  <ModuleType value="Community"/>
+  <DependedModules>
+    <DependedModule Id="Native" Optional="false"/>
+    <DependedModule Id="SandBoxCore" Optional="false"/>
+    <DependedModule Id="Sandbox" Optional="false"/>
+  </DependedModules>
+  <SubModules>
+    <SubModule>
+      <Name value="BattleCheatsSubModule"/>
+      <DLLName value="BattleCheats.dll"/>
+      <SubModuleClassType value="BattleCheats.BattleCheatsSubModule"/>
+      <Tags>
+        <Tag key="DedicatedServerType" value="none"/>
+        <Tag key="IsNoRenderModeElement" value="false"/>
+      </Tags>
+    </SubModule>
+  </SubModules>
+</Module>
